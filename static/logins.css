@@ -1,0 +1,102 @@
+/* General styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background: radial-gradient(ellipse farthest-corner at center, #1c0553, #000000);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Vertically center everything */
+    height: 100vh; /* Ensure the body takes full height */
+    text-align: center;
+    overflow: hidden; /* Prevent scrolling */
+}
+
+/* Container for forms */
+section {
+    background-color: rgba(255, 255, 255, 0.6); /* Added translucency */
+    padding: 20px;
+    margin: 10px;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+/* Form heading */
+h2 {
+    font-size: 2.0em;
+    color: #000000;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Labels */
+label {
+    font-size: 1em;
+    color: #191717;
+    margin-bottom: 5px;
+    display: block;
+    text-align: left;
+}
+
+/* Input fields */
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: #0c0f0c;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Buttons */
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #0b100b;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #1c0553;
+}
+
+/* Links */
+p {
+    text-align: center;
+    font-size: 0.9em;
+    color: #242222;
+}
+
+p a {
+    color: #000000;
+    text-decoration: none;
+}
+
+p a:hover {
+    text-decoration: underline;
+}
+
+/* Error message */
+p[style*="color: red"] {
+    color: red;
+    font-size: 0.9em;
+    text-align: center;
+    margin-top: 10px;
+}

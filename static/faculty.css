@@ -1,0 +1,205 @@
+/* General styling */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #121212;
+    color: #f5f5f5;
+    display: flex;
+    overflow: auto;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+a:hover {
+    color: #4caf50;
+}
+
+/* Sidebar styling */
+.sidebar {
+    width: 250px;
+    height: 130vh;
+    background-color: #1f1f1f;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 10px;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.nav-links li a {
+    display: block;
+    padding: 10px;
+    color: #bbbbbb;
+}
+
+.nav-links li.active a,
+.nav-links li a:hover {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+#userSearch {
+    margin: 15px;
+    padding: 6px;
+    width: 220px;
+    background: #bdb3b342;
+    color: white;
+}
+
+/* Main content styling */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto; /* Ensure main content is scrollable */
+}
+
+.main-content25 {
+    display: none;
+}
+
+.stats-cards {
+    display: flex;
+    gap: 20px;
+}
+
+.card {
+    background-color: #1f1f1f;
+    padding: 15px;
+    border-radius: 10px;
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+}.card {
+    background-color: #1f1f1f;
+    padding: 20px;
+    border-radius: 10px;
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+}
+
+.table-container {
+    display: none;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #343a40;
+    padding: 0.5rem;
+    background-color: #1e1e2f;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    background-color: #1e1e2f;
+    color: #ffffff;
+    border: 1px solid #343a40;
+}
+
+table th, table td {
+    padding: 0.4rem;
+    border: 1px solid #343a40;
+}
+
+.copy-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 5px;
+    color: #555;
+    transition: color 0.3s ease;
+}
+
+.copy-btn:hover {
+    color: #007BFF;
+}
+
+/* Circular form styling */
+.circular-form {
+    margin-top: 15px;
+    background-color: #1f1f1f;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid #343a40;
+}
+
+.circular-form label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 8px;
+    color: #f5f5f5;
+}
+
+.circular-form input[type="file"], .circular-form input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    border: 1px solid #343a40;
+    border-radius: 8px;
+    background-color: #2c2c2c;
+    color: #f5f5f5;
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease;
+}
+
+.circular-form input[type="file"]:hover,
+.circular-form input[type="text"]:hover {
+    border-color: #4caf50;
+}
+
+.circular-form button {
+    margin-top: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: #4caf50;
+    color: #ffffff;
+    font-size: .9rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+}
+
+.circular-form button:hover {
+    background-color: #45a049;
+}
+
+.circular-form p {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #bbbbbb;
+}
+
+#coinlg {
+    width: 65px;
+    vertical-align: middle; /* Ensures the coin image and text are aligned in the middle vertically */
+    margin-right: 10px; /* Adds some space between the coin image and the text */
+}
+
+.coinbox {
+    display: inline-flex; /* Makes the box behave like inline, so it stays aligned with other content */
+    align-items: center; /* Ensures the text and image are vertically aligned */
+}
+
+.getbal{
+    margin-top: 10px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    background-color: #4caf50;
+    color: #ffffff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+}
+

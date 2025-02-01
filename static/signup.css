@@ -1,0 +1,131 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background: radial-gradient(ellipse farthest-corner at center, #1c0553, #000000);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Vertically center everything */
+    height: 100vh; /* Ensure the body takes full height */
+    text-align: center;
+    overflow: hidden; /* Prevent scrolling */
+}
+
+/* Logo Styling */
+.logo {
+    height: 140px; /* Slightly reduced for balance */
+    margin-bottom: 20px; /* Reduced to prevent excess spacing */
+}
+
+/* Form Styles */
+form {
+    background: rgba(239, 223, 223, 0.6);
+    padding: 10px;
+    border-radius: 7px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+    width: 70%;
+    max-width: 300px;
+    margin-bottom: 7px; /* Adjusted to avoid pushing footer too far down */
+}
+
+/* Label Styling */
+label {
+    font-size: 1.1rem;
+    display: block;
+    margin-bottom: 8px;
+    text-align: left;
+    color: #000000;
+}
+
+/* Input Fields */
+input[type="text"], input[type="password"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    color: #333;
+    outline: none;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="text"]:focus, input[type="password"]:focus {
+    background: #fff;
+    box-shadow: 0 0 5px #3498db;
+}
+
+/* Button Styling */
+button {
+    background: #000000;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    width: 100%;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #290976;
+    transform: scale(1.02); /* Adds a subtle hover effect */
+}
+
+/* Link Styles */
+p {
+    margin-top: 10px; /* Reduced space */
+    font-size: 1rem;
+}
+
+a {
+    color: #f39c12;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #0d064a;
+}
+
+/* Footer Styles */
+footer {
+    margin-top: 10px; /* Reduced margin to fit the page */
+    font-size: 0.9rem;
+}
+
+footer a {
+    color: #f39c12;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+footer a:hover {
+    color: #d35400;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    h2 {
+        font-size: 3.8rem; /* Adjust font size for smaller screens */
+    }
+
+    form {
+        padding: 6px;
+    }
+
+    input[type="text"], input[type="password"] {
+        font-size: 0.7rem;
+    }
+
+    button {
+        font-size: 0.9rem;
+    }
+}
