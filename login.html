@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlocDoc Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Keep all the existing styles unchanged */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --bg-primary: #13131A;
+            --bg-secondary: #1C1C26;
+            --bg-tertiary:rgb(12, 12, 15);
+            --accent-primary: #B8C0EC;
+            --accent-secondary: #FFB5C2;
+            --text-primary: #E2E8F0;
+            --text-secondary: #94A3B8;
+            --electric-blue: #4FACFE;
+            --grid-color: rgba(185, 184, 236, 0.15);
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: -0.01em;
+        }
+
+        .grid-background {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid-vertical {
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(
+                to right,
+                var(--grid-color) 0px,
+                var(--grid-color) 2px,
+                transparent 2px,
+                transparent 100px
+            );
+            animation: waveVertical 15s ease-in-out infinite alternate;
+            box-shadow: 0 0 30px rgba(184, 192, 236, 0.1);
+        }
+
+        .grid-horizontal {
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(
+                to bottom,
+                var(--grid-color) 0px,
+                var(--grid-color) 2px,
+                transparent 2px,
+                transparent 100px
+            );
+            animation: waveHorizontal 12s ease-in-out infinite alternate;
+            box-shadow: 0 0 30px rgba(184, 192, 236, 0.1);
+        }
+
+        .impulse {
+            position: absolute;
+            width: 150px;
+            height: 4px;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                var(--electric-blue),
+                #60A5FA,
+                var(--electric-blue),
+                transparent
+            );
+            filter: blur(2px);
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 
+                0 0 15px var(--electric-blue),
+                0 0 30px var(--electric-blue);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: rgba(28, 28, 38, 0.95);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.35),
+                0 0 30px rgba(184, 192, 236, 0.1);
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.03em;
+            text-transform: uppercase;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(184, 192, 236, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--accent-primary);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background-color: #A6B0DC;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .links {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            letter-spacing: 0.02em;
+        }
+
+        .links a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .links a:hover {
+            color: var(--accent-secondary);
+        }
+
+        .message, .error {
+            color: var(--accent-secondary);
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        @keyframes waveVertical {
+            0% { transform: scaleY(1.2) skewX(5deg); }
+            50% { transform: scaleY(0.8) skewX(-5deg); }
+            100% { transform: scaleY(1.2) skewX(5deg); }
+        }
+
+        @keyframes waveHorizontal {
+            0% { transform: scaleX(1.2) skewY(5deg); }
+            50% { transform: scaleX(0.8) skewY(-5deg); }
+            100% { transform: scaleX(1.2) skewY(5deg); }
+        }
+
+        @keyframes impulseMove {
+            0% {
+                transform: translate(-100%, -100%) rotate(45deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(200%, 200%) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .login-container {
+                border-radius: 16px;
+                padding: 2rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-background">
+        <div class="grid-vertical"></div>
+        <div class="grid-horizontal"></div>
+        <div class="impulse"></div>
+        <div class="impulse" style="animation-delay: 2s;"></div>
+        <div class="impulse" style="animation-delay: 4s;"></div>
+        <div class="impulse" style="animation-delay: 6s;"></div>
+        <div class="impulse" style="animation-delay: 8s;"></div>
+    </div>
+
+    <div class="login-container">
+        <section class="login-section">
+            <h2>BlocDoc</h2>
+            <form action="/login" method="post" class="form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+            <div class="links">
+                <p>Don't have an account? <a href="/signup" class="link">Signup</a></p>
+                <p>You're an admin? <a href="/admin_loginfromhome" class="link">Signin</a></p>
+            </div>
+            {% if message %}
+                <p class="message">{{ message }}</p>
+            {% endif %}
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+        </section>
+    </div>
+
+    <script>
+        // Enhanced impulse animation
+        function createImpulses() {
+            const impulses = document.querySelectorAll('.impulse');
+            
+            impulses.forEach((impulse, index) => {
+                const startX = Math.random() * window.innerWidth;
+                const startY = Math.random() * window.innerHeight;
+                const angle = Math.random() * 360;
+                
+                impulse.style.left = `${startX}px`;
+                impulse.style.top = `${startY}px`;
+                impulse.style.transform = `rotate(${angle}deg)`;
+                
+                const duration = 6 + Math.random() * 4;
+                impulse.style.animation = `impulseMove ${duration}s infinite ${index * 2}s`;
+            });
+        }
+
+        // Initialize impulses
+        createImpulses();
+
+        // Recreate impulses on window resize
+        window.addEventListener('resize', createImpulses);
+    </script>
+</body>
+</html>
