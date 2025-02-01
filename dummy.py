@@ -453,36 +453,33 @@ def log_incentive():
         file_name = data.get('file_name')
         timestamp = datetime.now()  # Ensure correct usage of datetime
 
-        # Insert into your database (adjust table and column names as needed)
+        # Insert into your database (ensure table 'incentives' has user_id, file_name, timestamp columns)
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO incentives (file_name, timestamp) VALUES (?, ?)",
+            "INSERT INTO incentives (user_id, file_name, timestamp) VALUES (?, ?, ?)",
             (user_id, file_name, timestamp)
         )
         conn.commit()
+        conn.close()
 
         return jsonify({"status": "success", "message": "Incentive logged successfully."}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-    
-    
+
+
 @app.route('/incentive_table')
 def incentive_table():
     try:
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM incentives ORDER BY timestamp DESC")
+        cursor.execute("SELECT id, file_name, user_id, timestamp FROM incentives ORDER BY timestamp DESC")
         incentives = cursor.fetchall()
         conn.close()
-        
-        if not incentives:
-            return render_template('incentive_table.html', incentives=None)
         
         return render_template('incentive_table.html', incentives=incentives)
     
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 
 
@@ -590,7 +587,7 @@ def admin_login():
         session['is_admin'] = True  # Set session to mark user as admin
         session['username'] = "admin"  # Optional: Set a username for the admin
         return redirect(url_for('admin'))  # Redirect to the admin dashboard
-    else:
+    else: 
         # Render the login page with an error message
         return render_template('login.html', error="Invalid admin password")
 
@@ -658,6 +655,99 @@ def faculty():
         return jsonify({"error": str(e)})
 
     return render_template('faculty.html', files=files, circular=circular)
+
+
+
+
+
+
+
+
+
+
+
+import os
+import docx
+import PyPDF2
+import re
+from spellchecker import SpellChecker
+
+
+from spellchecker import SpellChecker
+
+def analyze_text_quality(text):
+    """Analyzes text formatting, spelling mistakes, and blank spaces, then assigns a rating."""
+    
+    if not text.strip():
+        return 4  # Default rating if no text is found
+
+    spell = SpellChecker()
+    words = text.split()
+    misspelled = spell.unknown(words)  # Finds words that are not in the dictionary
+    
+    word_count = len(words)
+    blank_spaces = text.count("  ")  # Double spaces as an error metric
+    spelling_mistakes = len(misspelled)  # Count only actual misspelled words
+
+    # Simple scoring based on detected issues
+    score = 5
+    if blank_spaces > 5 and blank_spaces <= 10:
+        score -= 1
+    elif blank_spaces > 10 and blank_spaces <=20:
+        score -= 2
+    elif blank_spaces > 20:
+        score -= 3
+    if spelling_mistakes > 5 and spelling_mistakes <=10:
+        score -= 1
+    elif spelling_mistakes > 10 and spelling_mistakes<=20:
+        score -= 2
+    elif spelling_mistakes > 20:
+        score -= 3
+    if word_count < 10:
+        score = 4  # Not much text found, default to 4
+    
+    return max(1, score)  # Ensure rating is between 1 and 5
+
+
+@app.route('/analyze', methods=['POST'])
+def analyze_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+    
+    file = request.files['file']
+    filename = file.filename
+    file_ext = os.path.splitext(filename)[1].lower()
+    
+    text_content = ""
+    
+    try:
+        if file_ext == '.txt':
+            text_content = file.read().decode('utf-8')
+        elif file_ext == '.docx':
+            doc = docx.Document(file)
+            text_content = '\n'.join([para.text for para in doc.paragraphs])
+        elif file_ext == '.pdf':
+            reader = PyPDF2.PdfReader(file)
+            text_content = '\n'.join([page.extract_text() for page in reader.pages if page.extract_text()])
+        else:
+            return jsonify({'rating': 4})  # Non-text files default to rating 4
+        
+        rating = analyze_text_quality(text_content)
+        return jsonify({'rating': rating})
+    except Exception as e:
+        return jsonify({'error': str(e), 'rating': 4})  # If error, assign default rating 4
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -770,6 +860,111 @@ def manage_circular():
     # Fetch current circular
     circular = get_circular()
     return render_template('admin.html', circular=circular)
+
+
+
+
+
+    
+    
+   
+
+
+
+
+
+
+
+
+import sqlite3
+import google.generativeai as genai
+from flask import Flask, request, jsonify, render_template
+
+genai.configure(api_key="AIzaSyCBt1P_Hr9RK4-P6e872pjbUoXCObGlO6U")
+model = genai.GenerativeModel("gemini-1.5-flash")
+
+def get_db_connection():
+    try:
+        conn = sqlite3.connect(DATABASE)
+        conn.row_factory = sqlite3.Row
+        return conn
+    except Exception as e:
+        print(f"Error connecting to database: {e}")
+        return None
+
+def fetch_data_from_db(table_name):
+    conn = get_db_connection()
+    if not conn:
+        return []
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM {table_name}")
+        data = cursor.fetchall()
+        conn.close()
+        return [dict(row) for row in data]
+    except sqlite3.OperationalError as e:
+        print(f"Database error with table {table_name}: {e}")
+        return []
+
+def generate_reference_prompt():
+    logs = fetch_data_from_db("logs")
+    users = fetch_data_from_db("users")
+    incentives = fetch_data_from_db("incentives")
+
+    prompt = "The following database records should be used as reference for all queries:\n\n"
+
+    for table_name, data in [("Logs", logs), ("Users", users), ("Incentives", incentives)]:
+        if data:
+            prompt += f"{table_name}:\n"
+            for item in data[:200]:  # Limit to first 5 records
+                prompt += "- " + ", ".join(f"{key}: {value if value is not None else 'N/A'}" for key, value in item.items()) + "\n"
+            prompt += "\n"
+
+    prompt += "User queries should be answered based on the above data. If the answer is not found, respond with 'Sorry, I could not find anything. I may not be able to answer your question yet'. Refer only data from the february month. Ignore all previous records. just answer what is asked and do not mention based on february"
+    return prompt
+
+@app.route("/chatbot", methods=["GET", "POST"])
+def chatbot():
+    reference_prompt = generate_reference_prompt()
+
+    if request.method == "POST":
+        user_query = request.form.get("query", "").strip()
+
+        if not user_query:
+            return jsonify({"response": "Please enter a query."})
+
+        full_prompt = f"""{reference_prompt}
+
+        Now, engage in a natural, conversational chat with the user, using the provided database information as context.  If the user's query can be directly answered from the database, provide the answer. If the query is more conversational or requires interpretation, respond appropriately, referencing the data where relevant. If the answer is not found in the database, respond politely indicating this.
+
+        User Query: {user_query}
+        """
+
+        try:
+            response = model.generate_content(full_prompt)
+            chat_response = response.text.strip() if response else "I'm having trouble processing your request."  # More conversational fallback
+
+        except Exception as e:
+            print(f"Error generating response: {e}")
+            chat_response = "I'm having trouble processing your request."
+
+        return jsonify({"response": chat_response})
+
+    return render_template("chatbot.html")
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
