@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard</title>
+    <link rel="stylesheet" href="static/faculty.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script>
+        function searchTable(inputId, tableId) {
+            const input = document.getElementById(inputId);
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById(tableId);
+            const rows = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < rows.length; i++) {
+                let isVisible = false;
+                const cells = rows[i].getElementsByTagName("td");
+                
+                for (let cell of cells) {
+                    if (cell.textContent.toUpperCase().includes(filter)) {
+                        isVisible = true;
+                        break;
+                    }
+                }
+                rows[i].style.display = isVisible ? "" : "none";
+            }
+        }
+
+        function countApprovedFiles() {
+            const table = document.getElementById("fileTable");
+            const rows = table.getElementsByTagName("tr");
+            let approvedCount = 0;
+
+            for (let i = 1; i < rows.length; i++) {
+                const approvalCell = rows[i].getElementsByTagName("td")[5];
+                if (approvalCell && approvalCell.textContent.trim() === "Approved") {
+                    approvedCount++;
+                }
+            }
+            document.getElementById("approvedCount").textContent = approvedCount;
+        }
+
+        document.addEventListener("DOMContentLoaded", countApprovedFiles);
+
+        let web3;
+        let contract;
+
+        const ABI = [
+            {
+                "inputs": [
+                    { "internalType": "uint256", "name": "initialSupply", "type": "uint256" },
+                    { "internalType": "uint256", "name": "_rewardRate", "type": "uint256" }
+                ],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "inputs": [], 
+                "name": "rewardRate",
+                "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [], 
+                "name": "paused",
+                "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    { "internalType": "string", "name": "fileName", "type": "string" },
+                    { "internalType": "string", "name": "format", "type": "string" }
+                ],
+                "name": "uploadFile",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "togglePause",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [{ "internalType": "uint256", "name": "newRate", "type": "uint256" }],
+                "name": "setRewardRate",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
+                "name": "balanceOf",
+                "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
+
+        const CONTRACT_ADDRESS = "0x9b1f86b0c9e081995BcC0403F56D4B499dAAfe4f"; // Replace with your deployed contract address
+
+        window.onload = async function() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+                contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
+                console.log("Connected to contract:", CONTRACT_ADDRESS);
+            } else {
+                alert("Non-Ethereum browser detected. Please install MetaMask.");
+            }
+        };
+
+        async function uploadFileAutomatically(fileName) {
+            const accounts = await web3.eth.getAccounts();
+            const match = fileName.match(/^[A-Z]{3}-.*$/);
+            const format = match ? fileName : "CSE-" + fileName;
+        
+            try {
+                await contract.methods.uploadFile(fileName, format).send({ from: accounts[0] });
+                alert("Incentive Availed. You may upload");
+        
+                // Log the incentive in the database
+                logIncentive(fileName);
+            } catch (error) {
+                console.error("Error uploading file:", error);
+                alert("Not Eligible for Incentive. You may consider renaming the file as per specified format.");
+            }
+        }
+
+        function handleFileUpload(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById("file");
+            const fileName = fileInput.files[0]?.name || "Untitled.pdf";
+            uploadFileAutomatically(fileName);
+        }
+
+        async function logIncentive(fileName) {
+            const userId = "{{ session['user_id'] }}"; // Use session or other identifiers from your Flask app
+        
+            try {
+                const response = await fetch('/log_incentive', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user_id: userId, file_name: fileName }),
+                });
+        
+                const result = await response.json();
+                if (result.status === 'success') {
+                    console.log("Incentive logged:", result.message);
+                    addIncentiveToTable(userId, fileName, new Date().toLocaleString());
+                } else {
+                    console.error("Error logging incentive:", result.message);
+                }
+            } catch (error) {
+                console.error("Error connecting to server:", error);
+            }
+        }
+        
+        function addIncentiveToTable(userId, fileName, timestamp) {
+            const table = document.getElementById("incentiveTable");
+            const newRow = table.insertRow(-1);
+        
+            const userCell = newRow.insertCell(0);
+            const fileCell = newRow.insertCell(1);
+            const timeCell = newRow.insertCell(2);
+        
+            userCell.textContent = userId;
+            fileCell.textContent = fileName;
+            timeCell.textContent = timestamp;
+        }
+
+        async function getBalance() {
+            if (!web3) {
+                alert("Web3 is not initialized. Please connect to MetaMask.");
+                return;
+            }
+        
+            const accounts = await web3.eth.getAccounts();
+            if (accounts.length === 0) {
+                alert("No account found. Please connect to MetaMask.");
+                return;
+            }
+        
+            const userAddress = accounts[0]; // Get the user's address from MetaMask
+        
+            try {
+                const balance = await contract.methods.balanceOf(userAddress).call();
+                // Assuming the balance is returned in the smallest unit (e.g., wei or other)
+                const formattedBalance = web3.utils.fromWei(balance, 'ether'); // Adjust the unit if needed
+                document.getElementById("coinBalance").textContent = formattedBalance;
+            } catch (error) {
+                console.error("Error getting balance:", error);
+                alert("Unable to fetch balance. Please try again later.");
+            }
+        }
+
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">BlocDoc</div>
+        <ul class="nav-links">
+            <li class="active"><a href="/faculty">Dashboard</a></li>
+            <li><a href="/facdoc">Public Files/Docs</a></li>
+            <li><a href="/">Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Uploader Dashboard</h1>
+        <p>Welcome, {{ session['username'] }}</p>
+
+        {% if circular %}
+            <p>Current Circular: {{ circular[1] }} (Posted on: {{ circular[2] }})</p>
+        {% endif %}
+
+        <div class="stats-cards">
+            <div class="card">
+                <div class="card-content">
+                    <h2>Public Files</h2>
+                    <p><span id="approvedCount">0</span></p>
+                </div>
+                <div class="icon">✔️</div>
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="circular-form">
+            <label for="file">File:</label>
+            <input type="file" name="file" id="file" required>
+            <label for="category">Department and Category:</label>
+            <input type="text" name="category" id="category" placeholder="Deptname-Category/Comment" required>
+            <label for="dept">Department:</label>
+            <input type="text" name="dept" id="dept" placeholder="Deptname" required>
+            <button onclick="handleFileUpload(event)" type="submit">Get Incentivised [if eligible]</button>
+            <button type="submit">Upload</button>
+        </form>
+
+        <div class="table-container">
+            <input type="text" id="fileSearch" onkeyup="searchTable('fileSearch', 'fileTable')" placeholder="Search for files.." class="form-control mb-3">
+            <table class="table table-bordered" id="fileTable">
+                <thead>
+                    <tr>
+                        <th>Dept.</th>
+                        <th>ID</th> 
+                        <th>File Name</th>
+                        <th>Category</th>
+                        <th>IPFS Link</th>
+                        <th>Approval Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in files %}
+                    <tr>
+                        <td>{{ file.dept }}</td>
+                        <td>{{ file.id }}</td>
+                        <td>{{ file.name }}</td>
+                        <td>{{ file.category }}</td>
+                        <td><a href="{{ file.ipfs_hash }}" target="_blank">View File</a></td>
+                        <td>{{ 'Approved' if file.approved else 'Pending' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h2>BlocDocCoin Balance</h2>
+        <div class="coinbox"><p> <img id="coinlg" src="static/bcoin.png"> Your current balance: <span id="coinBalance">0</span> BDC </p></div> <br>
+        <button class="getbal" onclick="getBalance()">Get My Balance</button>
+
+    </div>
+</body>
+</html>

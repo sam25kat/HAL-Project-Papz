@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="static/logins.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Login Section -->
+        <section class="login-section">
+            <h2>Admin Login</h2>
+            <form action="/admin_login" method="post" class="form">
+                <div class="form-group">
+                    <label for="adminpassword">Admin Password:</label>
+      <input type="password" id="adminpassword" name="adminpassword" required>
+      <button type="submit">Admin Login</button>
+  </form>
+
+  <!-- Display error if passed -->
+  {% if error %}
+  <p style="color: red;">{{ error }}</p>
+  {% endif %}
+</body>
+
+</html>

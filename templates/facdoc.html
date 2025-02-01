@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document List</title>
+    <link rel="stylesheet" href="static/facdoc.css">
+    <script>
+        function searchTable(inputId, tableId) {
+            const input = document.getElementById(inputId);
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById(tableId);
+            const rows = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < rows.length; i++) {
+                let isVisible = false;
+                const cells = rows[i].getElementsByTagName("td");
+                
+                for (let cell of cells) {
+                    if (cell.textContent.toUpperCase().includes(filter)) {
+                        isVisible = true;
+                        break;
+                    }
+                }
+                rows[i].style.display = isVisible ? "" : "none";
+            }
+        }
+
+        function countApprovedFiles() {
+            const table = document.getElementById("fileTable");
+            const rows = table.getElementsByTagName("tr");
+            let approvedCount = 0;
+
+            for (let i = 1; i < rows.length; i++) {
+                const approvalCell = rows[i].getElementsByTagName("td")[5];
+                if (approvalCell && approvalCell.textContent.trim() === "Approved") {
+                    approvedCount++;
+                }
+            }
+            document.getElementById("approvedCount").textContent = approvedCount;
+        }
+
+        document.addEventListener("DOMContentLoaded", countApprovedFiles);
+
+        let web3;
+        let contract;
+
+        const ABI = [
+            {
+                "inputs": [
+                    { "internalType": "uint256", "name": "initialSupply", "type": "uint256" },
+                    { "internalType": "uint256", "name": "_rewardRate", "type": "uint256" }
+                ],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "inputs": [],
+                "name": "rewardRate",
+                "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "paused",
+                "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    { "internalType": "string", "name": "fileName", "type": "string" },
+                    { "internalType": "string", "name": "format", "type": "string" }
+                ],
+                "name": "uploadFile",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "togglePause",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [{ "internalType": "uint256", "name": "newRate", "type": "uint256" }],
+                "name": "setRewardRate",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ];
+
+        const CONTRACT_ADDRESS = "0x9b1f86b0c9e081995BcC0403F56D4B499dAAfe4f"; // Replace with your deployed contract address
+
+        window.onload = async function() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+                contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
+                console.log("Connected to contract:", CONTRACT_ADDRESS);
+            } else {
+                alert("Non-Ethereum browser detected. Please install MetaMask.");
+            }
+        };
+
+        async function uploadFileAutomatically(fileName) {
+            const accounts = await web3.eth.getAccounts();
+
+            const match = fileName.match(/^[A-Z]{3}-.*$/);
+            const format = match ? fileName : "CSE-" + fileName;
+
+            try {
+                await contract.methods.uploadFile(fileName, format).send({ from: accounts[0] });
+                alert("File uploaded successfully!");
+            } catch (error) {
+                console.error("Error uploading file:", error);
+                alert("Failed to upload file: " + error.message);
+            }
+        }
+
+        function handleFileUpload(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById("file");
+            const fileName = fileInput.files[0]?.name || "Untitled.pdf";
+            uploadFileAutomatically(fileName);
+        }
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">BlocDoc</div>
+        <ul class="nav-links">
+            <li class="active"><a href="/faculty">Dashboard</a></li>
+            <li><a href="/facdoc">Public Files/Docs</a></li>
+            <li><a href="/">Logout</a></li>
+        </ul>
+    </div>
+    <div class="table-container">
+        <input
+            type="text"
+            id="fileSearch"
+            onkeyup="searchTable('fileSearch', 'fileTable')"
+            placeholder="Search for files.."
+            class="search-input"
+        >
+        <table id="fileTable">
+            <thead>
+                <tr>
+                    <th>Dept.</th>
+                    <th>ID</th>
+                    <th>File Name</th>
+                    <th>Category</th>
+                    <th>IPFS Link</th>
+                    <th>Approval Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                <tr>
+                    <td>{{ file.dept }}</td>
+                    <td>{{ file.id }}</td>
+                    <td>{{ file.name }}</td>
+                    <td>{{ file.category }}</td>
+                    <td><a href="{{ file.ipfs_hash }}" target="_blank">View File</a></td>
+                    <td>{{ 'Approved' if file.approved else 'Pending' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

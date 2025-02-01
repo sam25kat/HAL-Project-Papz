@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="static/logins.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Login Section -->
+        <section class="login-section">
+            <h2>BlocDoc</h2>
+            <form action="/login" method="post" class="form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                
+            </form>
+            <p>Don't have an account? <a href="/signup" class="link">Signup</a></p>
+            <p>You're an admin? <a href="/admin_loginfromhome" class="link">Signin</a></p>
+            {% if message %}
+        
+            <p>{{ message }}</p>
+        
+    {% endif %}
+        </section>
+
+        <!-- Display error if passed -->
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>

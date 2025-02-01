@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <link rel="stylesheet" href="static/signup.css">
+</head>
+<body>
+    <header>
+        <img src="static/logof.png" alt="Logo" class="logo">
+    </header>
+    
+    <form action="/signup" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <label for="metamask_address">Metamask Address:</label>
+        <input type="text" id="metamask_address" name="metamask_address" required>
+        <br>
+        <button type="submit">Signup</button>
+    </form>
+    <footer>
+        <p>Already have an account? <a href="/">Login</a></p>
+    </footer> <!-- Moved to bottom -->
+</body>
+</html>

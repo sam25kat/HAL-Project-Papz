@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static/faculty.css">
+    <title>Incentive Table</title> 
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">BlockDoc</div>
+        <ul class="nav-links">
+            <li class="active"><a href="/admin">Dashboard</a></li>
+            <li><a href="/docs">Documents</a></li>
+            <li><a href="#">Circular</a></li>
+            <li><a href="#">Pending Requests</a></li>
+            <li><a href="/incentive_table">Incentive Logs</a></li>
+            <li><a href="/">Log Out</a></li>
+        </ul>
+    </div>
+    <h1>Incentive Table</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>File Name</th>
+                <th>User ID</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if incentives %}
+                {% for incentive in incentives %}
+                    <tr>
+                        <td>{{ incentive[0] }}</td>  <!-- ID -->
+                        <td>{{ incentive[1] }}</td>  <!-- File Name -->
+                        <td>{{ incentive[2] }}</td>  <!-- User ID -->
+                        <td>{{ incentive[3] }}</td>  <!-- Timestamp -->
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4">No incentives found.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</body>
+</html>
