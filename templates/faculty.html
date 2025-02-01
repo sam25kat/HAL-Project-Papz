@@ -203,14 +203,24 @@
         }
 
     </script>
+    <style>
+        /* Apply "not-allowed" cursor for disabled buttons */
+        button:disabled {
+            cursor: not-allowed;
+            background-color: #d3d3d3;  /* Optional: change background color when disabled */
+        }
+    </style>
+    
 </head>
 <body>
+
     <div class="sidebar">
         <div class="logo">BlocDoc</div>
         <ul class="nav-links">
             <li class="active"><a href="/faculty">Dashboard</a></li>
             <li><a href="/facdoc">Public Files/Docs</a></li>
             <li><a href="/">Logout</a></li>
+            <li><a href="/chatbot">Chat</a></li>
         </ul>
     </div>
 
@@ -232,16 +242,64 @@
             </div>
         </div>
 
+
+        <script>
+            function analyzeFile() {
+                var fileInput = document.getElementById("file");
+                var uploadBtn = document.getElementById("upload");
+                var incentivizeBtn = document.getElementById("incentivize");
+        
+                if (fileInput.files.length === 0) {
+                    alert("Please select a file first.");
+                    return;
+                }
+                
+                var formData = new FormData();
+                formData.append("file", fileInput.files[0]);
+                
+                fetch("/analyze", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("rating").innerText = "Rating: " + data.rating;
+                    
+                    // Enable "Upload" button after analysis
+                    uploadBtn.disabled = false;
+                    
+                    // Check if the rating is below 3
+                    if (data.rating < 3) {
+                        incentivizeBtn.disabled = true;  // Disable "Get Incentivized" button
+                        alert("Not eligible for incentive due to low rating, but you may continue to upload if you wish without incentive.");
+                    } else {
+                        incentivizeBtn.disabled = false;  // Enable "Get Incentivized" button if eligible
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            }
+        </script>
+        
         <form method="POST" enctype="multipart/form-data" class="circular-form">
             <label for="file">File:</label>
             <input type="file" name="file" id="file" required>
+            
             <label for="category">Department and Category:</label>
             <input type="text" name="category" id="category" placeholder="Deptname-Category/Comment" required>
+            
             <label for="dept">Department:</label>
             <input type="text" name="dept" id="dept" placeholder="Deptname" required>
-            <button onclick="handleFileUpload(event)" type="submit">Get Incentivised [if eligible]</button>
-            <button type="submit">Upload</button>
+            
+            <button type="button" onclick="analyzeFile()">Analyze</button>
+            
+            <p id="rating">Rating: N/A</p>
+            
+            <!-- Initially disable both buttons -->
+            <button id="incentivize" onclick="handleFileUpload(event)" type="submit" disabled>Get Incentivised [if eligible]</button>
+            <button id="upload" type="submit" disabled>Upload</button>
         </form>
+        
+        
 
         <div class="table-container">
             <input type="text" id="fileSearch" onkeyup="searchTable('fileSearch', 'fileTable')" placeholder="Search for files.." class="form-control mb-3">
@@ -274,6 +332,8 @@
         <h2>BlocDocCoin Balance</h2>
         <div class="coinbox"><p> <img id="coinlg" src="static/bcoin.png"> Your current balance: <span id="coinBalance">0</span> BDC </p></div> <br>
         <button class="getbal" onclick="getBalance()">Get My Balance</button>
+
+        <button class="chatbot-btn" onclick="location.href='/chatbot'">Open Chatbot</button>
 
     </div>
 </body>
