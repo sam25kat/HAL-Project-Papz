@@ -22,9 +22,8 @@
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <th>S.no</th>
                 <th>File Name</th>
-                <th>User ID</th>
                 <th>Timestamp</th>
             </tr>
         </thead>
@@ -34,13 +33,12 @@
                     <tr>
                         <td>{{ incentive[0] }}</td>  <!-- ID -->
                         <td>{{ incentive[1] }}</td>  <!-- File Name -->
-                        <td>{{ incentive[2] }}</td>  <!-- User ID -->
                         <td>{{ incentive[3] }}</td>  <!-- Timestamp -->
                     </tr>
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td colspan="4">No incentives found.</td>
+                    <td colspan="3">No incentives found.</td>
                 </tr>
             {% endif %}
         </tbody>
